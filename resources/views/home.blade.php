@@ -62,8 +62,8 @@
                     @foreach ($countries as $c)
                         <option
                             value="{{ $c['ISO2'] }}"
-                            @if ($selectedCountry == $c['ISO2']) selected @endif
-                        >{{ $c['Country'] }}</option>
+                            label="{{ $c['Country'] }}"
+                        ></option>
                     @endforeach
                 </datalist>
 
