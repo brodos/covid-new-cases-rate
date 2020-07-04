@@ -6,7 +6,7 @@
             COVID-19 new cases rate in the last 14 days per 100k inhabitants
         </h1>
     </div>
-    <div class="mt-4 px-6 lg:px-0 max-w-md mx-auto w-full">
+    <div class="hidden mt-4 px-6 lg:px-0 max-w-md mx-auto w-full">
         <div class="flex justify-between">
             <label for="country" class="text-gray-600 sr-only">Pick country to compare</label>
         </div>
@@ -39,6 +39,52 @@
             </div>
         </div>
     </div>
+
+    <div class=" mt-4 px-6 lg:px-0 max-w-md mx-auto w-full">
+        <div class="flex justify-between">
+            <label for="country" class="text-gray-600 sr-only">Pick country to compare</label>
+        </div>
+        <script>
+            let countryInput = () => {
+                return {
+                    loading: false,
+                    search: null,
+                    selectCountry(event) {
+                        this.loading = true
+                        window.location.href = '/?country='+this.search
+                    }
+                }
+            }
+        </script>
+        <div class="mt-1 flex items-center" x-data="countryInput()">
+            <div class="relative w-full">
+                <datalist id="countries-list">
+                    @foreach ($countries as $c)
+                        <option
+                            value="{{ $c['ISO2'] }}"
+                            @if ($selectedCountry == $c['ISO2']) selected @endif
+                        >{{ $c['Country'] }}</option>
+                    @endforeach
+                </datalist>
+
+                <form x-ref="countryForm" name="" method="get">
+                    <input
+                        x-model="search"
+                        placeholder="Type country name..."
+                        list="countries-list"
+                        class="form-input py-3 w-full text-gray-800"
+                        type="search"
+                        @change="selectCountry"
+                    >
+                </form>
+
+                <div x-cloak class="absolute inset-y-0 flex items-center right-0 mr-16">
+                    <span class="spinner" x-show="loading"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @if (! empty($countryData['new_cases_rate']))
         <div class="max-w-md w-full mx-auto px-6 md:px-0">
             @if ($roData['new_cases_rate'] < $countryData['new_cases_rate'])
