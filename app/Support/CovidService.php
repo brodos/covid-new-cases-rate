@@ -136,7 +136,35 @@ class CovidService
         $data['confirmed'] = $days->sum('confirmed');
         $data['deaths'] = $days->sum('deaths');
         $data['recovered'] = $days->sum('recovered');
-        // $data['days'] = $days;
+
+        return $data;
+    }
+
+    /**
+     * Method to prepare view data
+     *
+     * @return array
+     */
+    public function prepareData(): array
+    {
+        $days = $this->getLast14Days();
+        $countryStats = $this->getCountryStats();
+
+        $data['country'] = $countryStats['name'];
+        $data['population'] = $countryStats['population'] ?? 0;
+        $data['flag'] = $countryStats['flag'] ?? null;
+
+        if ($days->isEmpty()) {
+            return $data;
+        }
+
+        $data['last_14_days']['confirmed'] = $days->sum('confirmed');
+        $data['last_14_days']['deaths'] = $days->sum('deaths');
+        $data['last_14_days']['recovered'] = $days->sum('recovered');
+        $data['last_reported_day'] = $days->last()['date'];
+        $data['new_cases_rate'] = round($data['last_14_days']['confirmed'] / ($data['population'] / 100000), 2);
+        $data['days'] = $days;
+        $data['trend'] = $this->getNewCasesTrend()->take(30)->reverse()->values();
 
         return $data;
     }

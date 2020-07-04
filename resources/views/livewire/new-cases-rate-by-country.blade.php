@@ -6,21 +6,14 @@
         </div>
         <div class="mt-1 flex items-center">
             <div class="relative w-full">
-                <input
-                    name="country"
-                    class="form-input w-full py-3 text-gray-900"
-                    placeholder="Type country name..."
-                    wire:model.lazy="country"
-                    list="countries"
-                />
-                <datalist id="countries">
+                <select class="form-select py-3 w-full" name="country" id="country" wire:model="country">
                     @foreach ($countries as $c)
                         <option value="{{ $c['ISO2'] }}" label="{{ $c['Country'] }}"></option>
                     @endforeach
-                </datalist>
+                </select>
 
                 <div class="absolute inset-y-0 flex items-center right-0 mr-12">
-                    <span class="spinner text-green-500" wire:loading></span>
+                    <span class="spinner" wire:loading></span>
                 </div>
             </div>
         </div>

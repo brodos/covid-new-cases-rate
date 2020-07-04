@@ -6,59 +6,67 @@
             COVID-19 new cases rate in the last 14 days per 100k inhabitants
         </h1>
     </div>
-    <div class="mt-8 container mx-auto flex flex-col lg:flex-row items-center justify-center px-6 lg:px-0">
-        <div class="max-w-md w-full mx-auto">
-            <div class="flex justify-between items-start leading-none">
-                <div>
-                    <h3 class="text-4xl flex items-center">
-                        <span>{{ $data['country'] }}</span>
-                        @if ($data['flag'])
-                            <span class="ml-4">
-                                <img class="h-6" src="{{ $data['flag'] }}" alt="{{ $data['country'] }} flag">
-                            </span>
-                        @endif
-                    </h3>
-                    <p class="mt-2 text-sm text-gray-600">Last reported day: {{ \Carbon\Carbon::parse($data['last_reported_day'])->format('F j, Y') }}</p>
-                </div>
-                <div class="flex flex-col items-end">
-                    <span class="text-3xl ml-4">{{ number_format($data['new_cases_rate'], 2) }}</span>
-                    <svg class="mt-1 sparkline" width="85" height="30" stroke-width="3" stroke="#4299E1" fill="#63B3ED"></svg>
-                </div>
-            </div>
+    <div class="mt-4 px-6 lg:px-0 max-w-md mx-auto w-full">
+        <div class="flex justify-between">
+            <label for="country" class="text-gray-600 sr-only">Pick country to compare</label>
+        </div>
+        <script>
+            let countrySelect = () => {
+                return {
+                    loading: false,
+                    selectCountry(event) {
+                        this.loading = true
+                        window.location.href = '/?country=' + event.target.value
+                    }
+                }
+            }
+        </script>
+        <div class="mt-1 flex items-center" x-data="countrySelect()">
+            <div class="relative w-full">
+                <select class="form-select py-3 w-full text-gray-800" name="country" id="country" @change="selectCountry">
+                    <option value selected>- pick a country to compare -</option>
+                    @foreach ($countries as $c)
+                        <option
+                            value="{{ $c['ISO2'] }}"
+                            @if ($selectedCountry == $c['ISO2']) selected @endif
+                        >{{ $c['Country'] }}</option>
+                    @endforeach
+                </select>
 
-            <div class="border-t border-b border-gray-800 py-6 my-3">
-                <ul class="leading-normal text-gray-300">
-                    <li class="flex justify-between">
-                        <span>Population</span>
-                        <span>{{ number_format($data['population'], 0) }}</span>
-                    </li>
-                    <li class="mt-6 font-bold text-xs uppercase text-gray-600">Last 14 days</li>
-                    <li class="mt-1 flex justify-between">
-                        <span>New cases</span>
-                        <span>{{ number_format($data['last_14_days']['confirmed'], 0) }}</span>
-                    </li>
-                    <li class="mt-1 flex justify-between">
-                        <span>Deaths</span>
-                        <span>{{ number_format($data['last_14_days']['deaths'], 0) }}</span>
-                    </li>
-                    <li class="mt-1 flex justify-between">
-                        <span>Recoveries</span>
-                        <span>{{ number_format($data['last_14_days']['recovered'], 0) }}</span>
-                    </li>
-                </ul>
+                <div x-cloak class="absolute inset-y-0 flex items-center right-0 mr-12">
+                    <span class="spinner" x-show="loading"></span>
+                </div>
             </div>
         </div>
+    </div>
+    @if (! empty($countryData['new_cases_rate']))
+        <div class="max-w-md w-full mx-auto px-6 md:px-0">
+            @if ($roData['new_cases_rate'] < $countryData['new_cases_rate'])
+                <div class="my-4 bg-red-300 rounded p-4 text-red-800">
+                    You are required to self-isolate for 14 days when coming to Romania from <span class="font-bold">{{ $countryData['country'] }}</span>.
+                </div>
+            @endif
 
-        <div class="mt-12 md:max-w-md w-full mx-auto">
-            <livewire:new-cases-rate-by-country :romania="$data" />
+            @if ($roData['new_cases_rate'] >= $countryData['new_cases_rate'])
+                <div class="my-4 bg-green-300 rounded p-4 text-green-800">
+                    You are <span class="font-bold">NOT</span> required to self-isolate for 14 days when coming to Romania from <span class="font-bold">{{ $countryData['country'] }}</span>.
+                </div>
+            @endif
+
+            @if (abs($roData['new_cases_rate'] - $countryData['new_cases_rate']) <= 2)
+                <div class="my-4 bg-orange-300 rounded p-4 text-orange-800">
+                    Be aware that the rates for new cases are pretty close.
+                </div>
+            @endif
+        </div>
+    @endif
+    <div class="mt-12 container mx-auto flex flex-col lg:flex-row items-start justify-center px-6 lg:px-0">
+        <div class="max-w-md w-full mx-auto">
+            @include('_partials.country-data', ['data' => $roData])
+        </div>
+
+        <div class="mt-8 lg:mt-0 max-w-md w-full mx-auto">
+            @include('_partials.country-data', ['data' => $countryData])
         </div>
     </div>
 @endsection
-@push('scripts')
-    <script src="https://unpkg.com/@fnando/sparkline@0.3.10/dist/sparkline.js"></script>
-    <script>
-        window.onload = () => {
-            sparkline.sparkline(document.querySelector('.sparkline'), {{ $data['trend']->pluck('new_cases_rate') }});
-        }
-    </script>
-@endpush
