@@ -66,7 +66,7 @@
         </div>
 
         <div class="mt-8 lg:mt-0 max-w-md w-full mx-auto">
-            @includeIf(! empty($countryData), '_partials.country-data', ['data' => $countryData])
+            @includeWhen(! empty($countryData), '_partials.country-data', ['data' => $countryData])
         </div>
     </div>
 @endsection
