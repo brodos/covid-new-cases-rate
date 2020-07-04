@@ -28,13 +28,31 @@
     @endif
 
     @if ($country && $data)
-        <div class="mt-4 flex justify-between items-start leading-none">
+        <div class="border-b border-gray-800 pb-3 mt-4 flex justify-between items-start leading-none">
             <div>
                 <h3 class="text-4xl">{{ $data['country'] }}</h3>
                 <p class="mt-2 text-sm text-gray-600">Last reported day: {{ \Carbon\Carbon::parse($data['last_reported_day'])->format('F j, Y') }}</p>
             </div>
             <span class="text-3xl ml-4">{{ number_format($data['new_cases_rate'], 2) }}</span>
         </div>
+
+        @if ($romania['new_cases_rate'] < $data['new_cases_rate'])
+            <div class="my-4 bg-red-300 rounded p-4 text-red-800">
+                You are required to self-isolate for 14 days when coming to Romania from <span class="font-bold">{{ $data['country'] }}</span>.
+            </div>
+        @endif
+
+        @if ($romania['new_cases_rate'] >= $data['new_cases_rate'])
+            <div class="my-4 bg-green-300 rounded p-4 text-green-800">
+                You are <span class="font-bold">NOT</span> required to self-isolate for 14 days when coming to Romania from <span class="font-bold">{{ $data['country'] }}</span>.
+            </div>
+        @endif
+
+        @if (abs($romania['new_cases_rate'] - $data['new_cases_rate']) <= 2)
+            <div class="my-4 bg-orange-300 rounded p-4 text-orange-800">
+                Be aware that the rates for new cases are pretty close.
+            </div>
+        @endif
 
         <div class="border-t border-b border-gray-800 py-6 my-3">
             <ul class="leading-normal text-gray-300">
@@ -57,23 +75,5 @@
                 </li>
             </ul>
         </div>
-
-        @if ($romania['new_cases_rate'] < $data['new_cases_rate'])
-            <div class="mt-4 bg-red-300 rounded p-4 text-red-800">
-                You are required to self-isolate for 14 days when coming to Romania from <span class="font-bold">{{ $data['country'] }}</span>.
-            </div>
-        @endif
-
-        @if ($data['new_cases_rate'] < $romania['new_cases_rate']  && $data['new_cases_rate'] - $romania['new_cases_rate']  < 2)
-            <div class="mt-4 bg-orange-300 rounded p-4 text-orange-800">
-                Be aware that the rates for new cases are pretty close.
-            </div>
-        @endif
-
-        @if ($romania['new_cases_rate'] >= $data['new_cases_rate'])
-            <div class="mt-4 bg-green-300 rounded p-4 text-green-800">
-                You are <span class="font-bold">NOT</span> required to self-isolate for 14 days when coming to Romania from <span class="font-bold">{{ $data['country'] }}</span>.
-            </div>
-        @endif
     @endif
 </div>
