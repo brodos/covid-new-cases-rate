@@ -92,7 +92,7 @@ class CovidService
             $response = \Http::get('https://restcountries.eu/rest/v2/alpha/' . $this->country);
 
             if (! $response->ok()) {
-                return [];
+                return collect([]);
             }
 
             return collect($response->json());
@@ -149,6 +149,10 @@ class CovidService
     {
         $days = $this->getLast14Days();
         $countryStats = $this->getCountryStats();
+
+        if ($countryStats->isEmpty()) {
+            return [];
+        }
 
         $data['country'] = $countryStats['name'];
         $data['population'] = $countryStats['population'] ?? 0;
