@@ -30,6 +30,7 @@ class NewCasesRateController extends Controller
         $data['last_reported_day'] = $days->last()['date'];
         $data['new_cases_rate'] = round($data['last_14_days']['confirmed'] / ($data['population'] / 100000), 2);
         $data['days'] = $days;
+        $data['trend'] = $covidService->getNewCasesTrend()->take(30)->reverse()->values();
 
         return response()->json($data);
     }
