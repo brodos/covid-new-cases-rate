@@ -58,6 +58,14 @@
         </script>
         <div class="mt-1 flex items-center" x-data="countryInput()">
             <div class="relative w-full">
+                <input
+                    x-model="search"
+                    placeholder="Type country name..."
+                    list="countries-list"
+                    class="form-input py-3 w-full text-gray-800"
+                    type="search"
+                    @change="selectCountry"
+                >
                 <datalist id="countries-list">
                     @foreach ($countries as $c)
                         <option
@@ -66,17 +74,6 @@
                         ></option>
                     @endforeach
                 </datalist>
-
-                <form x-ref="countryForm" name="" method="get">
-                    <input
-                        x-model="search"
-                        placeholder="Type country name..."
-                        list="countries-list"
-                        class="form-input py-3 w-full text-gray-800"
-                        type="search"
-                        @change="selectCountry"
-                    >
-                </form>
 
                 <div x-cloak class="absolute inset-y-0 flex items-center right-0 mr-16">
                     <span class="spinner" x-show="loading"></span>
