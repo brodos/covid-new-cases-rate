@@ -1,7 +1,12 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container mx-auto flex flex-col lg:flex-row items-center justify-center h-full px-6 lg:px-0">
+    <div class="px-6 lg:px-0 max-w-md mx-auto w-full">
+        <h1 class="text-center text-3xl md:text-4xl">
+            COVID-19 new cases rate in the last 14 days per 100k inhabitants
+        </h1>
+    </div>
+    <div class="mt-8 container mx-auto flex flex-col lg:flex-row items-center justify-center px-6 lg:px-0">
         <div class="max-w-md w-full mx-auto">
             <div class="flex justify-between items-start leading-none">
                 <div>
