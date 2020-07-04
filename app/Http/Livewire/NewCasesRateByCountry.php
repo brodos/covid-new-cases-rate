@@ -4,6 +4,7 @@ namespace App\Http\Livewire;
 
 use Carbon\Carbon;
 use Livewire\Component;
+use App\Support\CovidService;
 
 class NewCasesRateByCountry extends Component
 {
@@ -12,6 +13,8 @@ class NewCasesRateByCountry extends Component
     public $countries;
 
     public $romania;
+
+    public $data;
 
     protected $updatesQueryString = [
         'country' => ['except' => ''],
@@ -30,66 +33,33 @@ class NewCasesRateByCountry extends Component
         }
 
         $country = strtoupper($this->country);
-
-        $covidStats = $this->fetchCovidStats($country);
-        $countryStats = $this->fetchCountryStats($country);
-        $days = collect($covidStats)->reverse()->take(15)->values();
+        $covidService = (new CovidService($country));
+        $countryStats = $covidService->getCountryStats();
+        $days = $covidService->getLast14Days();
 
         if ($days->isEmpty()) {
             return [];
         }
 
-        $prevDay = $days->pop();
-
-        $data['country'] = $days->first()['Country'];
+        $data['country'] = $countryStats['name'];
         $data['population'] = $countryStats['population'] ?? 0;
-        $data['last_14_days']['confirmed'] = $days->first()['Confirmed'] - $days->last()['Confirmed'];
-        $data['last_14_days']['deaths'] = $days->first()['Deaths'] - $days->last()['Deaths'];
-        $data['last_14_days']['recovered'] = $days->first()['Recovered'] - $days->last()['Recovered'];
-        $data['last_reported_day'] = Carbon::parse($days->first()['Date'])->toDateString();
+        $data['flag'] = $countryStats['flag'] ?? null;
+        $data['last_14_days']['confirmed'] = $days->sum('confirmed');
+        $data['last_14_days']['deaths'] = $days->sum('deaths');
+        $data['last_14_days']['recovered'] = $days->sum('recovered');
+        $data['last_reported_day'] = $days->last()['date'];
         $data['new_cases_rate'] = round($data['last_14_days']['confirmed'] / ($data['population'] / 100000), 2);
+        $data['days'] = $days;
+        $data['trend'] = $covidService->getNewCasesTrend()->take(30)->reverse()->values();
+
+        $this->emit('dataFetched', $data['trend']->pluck('new_cases_rate'));
 
         return $data;
     }
 
-    protected function fetchCovidStats($country)
-    {
-        return \Cache::remember('covid:country:'.$country, Carbon::parse('10 minutes'), function () use ($country) {
-            $response = \Http::get(config('app.covid_api') . '/total/country/' . $country);
-
-            if (! $response->ok()) {
-                throw ValidationException::withMessages([
-                    'country' => 'The :country is not valid',
-                ]);
-            }
-
-            return $response->json();
-        });
-    }
-
-    protected function fetchCountryStats($country)
-    {
-        return \Cache::remember('countries:population:'.$country, Carbon::parse('30 days'), function () use ($country) {
-            $response = \Http::get('https://restcountries.eu/rest/v2/alpha/' . $country);
-
-            if (! $response->ok()) {
-                throw ValidationException::withMessages([
-                    'country' => 'The '. $country .' is not valid',
-                ]);
-            }
-
-            return $response->json();
-        });
-    }
-
     protected function fetchCountries()
     {
-        $this->countries = \Cache::remember('covid19:countries', \Carbon\Carbon::parse('5 minutes'), function () {
-            $response = \Http::get(config('app.covid_api') . '/countries');
-            return $response->json();
-        });
-
-        $this->countries = collect($this->countries)->sortBy('Country')->values()->toArray();
+        $this->countries = CovidService::getCountries()->toArray();
     }
 
     public function render()
@@ -98,8 +68,8 @@ class NewCasesRateByCountry extends Component
             $this->fetchCountries();
         }
 
-        $data = $this->fetchCountryData();
+        $this->data = $this->fetchCountryData();
 
-        return view('livewire.new-cases-rate-by-country', compact('data'));
+        return view('livewire.new-cases-rate-by-country');
     }
 }

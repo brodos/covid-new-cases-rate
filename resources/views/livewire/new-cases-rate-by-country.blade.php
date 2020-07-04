@@ -1,22 +1,27 @@
 <div>
     <div>
-        <label for="country" class="text-gray-600">Pick country to compare</label>
-        <div class="mt-1 flex items-center">
-            <input
-                name="country"
-                class="form-input w-full py-3 text-gray-900"
-                placeholder="Type country name..."
-                wire:model.lazy="country"
-                list="countries"
-            />
-            <datalist id="countries">
-                @foreach ($countries as $c)
-                    <option value="{{ $c['ISO2'] }}" label="{{ $c['Country'] }}"></option>
-                @endforeach
-            </datalist>
+        <div class="flex justify-between">
+            <label for="country" class="text-gray-600">Pick country to compare</label>
 
-            <div class="ml-1" wire:loading>
-                <span class="spinner">Loading</span>
+        </div>
+        <div class="mt-1 flex items-center">
+            <div class="relative w-full">
+                <input
+                    name="country"
+                    class="form-input w-full py-3 text-gray-900"
+                    placeholder="Type country name..."
+                    wire:model.lazy="country"
+                    list="countries"
+                />
+                <datalist id="countries">
+                    @foreach ($countries as $c)
+                        <option value="{{ $c['ISO2'] }}" label="{{ $c['Country'] }}"></option>
+                    @endforeach
+                </datalist>
+
+                <div class="absolute inset-y-0 flex items-center right-0 mr-12">
+                    <span class="spinner text-green-500" wire:loading></span>
+                </div>
             </div>
         </div>
     </div>
@@ -30,10 +35,20 @@
     @if ($country && $data)
         <div class="border-b border-gray-800 pb-3 mt-4 flex justify-between items-start leading-none">
             <div>
-                <h3 class="text-4xl">{{ $data['country'] }}</h3>
+                <h3 class="text-4xl flex items-center">
+                    <span>{{ $data['country'] }}</span>
+                    @if ($data['flag'])
+                        <span class="ml-4">
+                            <img class="h-6" src="{{ $data['flag'] }}" alt="{{ $data['country'] }} flag">
+                        </span>
+                    @endif
+                </h3>
                 <p class="mt-2 text-sm text-gray-600">Last reported day: {{ \Carbon\Carbon::parse($data['last_reported_day'])->format('F j, Y') }}</p>
             </div>
-            <span class="text-3xl ml-4">{{ number_format($data['new_cases_rate'], 2) }}</span>
+            <div class="flex flex-col items-end">
+                <span class="text-3xl ml-4">{{ number_format($data['new_cases_rate'], 2) }}</span>
+                <svg class="mt-1 country-sparkline" width="85" height="30" stroke-width="3" stroke="#4299E1" fill="#63B3ED"></svg>
+            </div>
         </div>
 
         @if ($romania['new_cases_rate'] < $data['new_cases_rate'])
@@ -77,3 +92,17 @@
         </div>
     @endif
 </div>
+
+@push('scripts')
+    <script src="https://unpkg.com/@fnando/sparkline@0.3.10/dist/sparkline.js"></script>
+    <script>
+        @if (isset($data['trend']) && $data['trend']->isNotEmpty())
+            sparkline.sparkline(document.querySelector('.country-sparkline'), {{ $data['trend']->pluck('new_cases_rate') }});
+        @endif
+        window.livewire.on('dataFetched', trend => {
+            if (trend.length) {
+                sparkline.sparkline(document.querySelector('.country-sparkline'), trend);
+            }
+        })
+    </script>
+@endpush

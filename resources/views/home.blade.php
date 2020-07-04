@@ -1,14 +1,24 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="flex flex-col items-center justify-center h-full px-6 md:px-0">
+    <div class="container mx-auto flex flex-col lg:flex-row items-center justify-center h-full px-6 lg:px-0">
         <div class="max-w-md w-full mx-auto">
             <div class="flex justify-between items-start leading-none">
                 <div>
-                    <h3 class="text-4xl">{{ $data['country'] }}</h3>
-                    <p class="mt-2 text-sm text-gray-500">Last reported day: {{ \Carbon\Carbon::parse($data['last_reported_day'])->format('F j, Y') }}</p>
+                    <h3 class="text-4xl flex items-center">
+                        <span>{{ $data['country'] }}</span>
+                        @if ($data['flag'])
+                            <span class="ml-4">
+                                <img class="h-6" src="{{ $data['flag'] }}" alt="{{ $data['country'] }} flag">
+                            </span>
+                        @endif
+                    </h3>
+                    <p class="mt-2 text-sm text-gray-600">Last reported day: {{ \Carbon\Carbon::parse($data['last_reported_day'])->format('F j, Y') }}</p>
                 </div>
-                <span class="text-3xl ml-4">{{ number_format($data['new_cases_rate'], 2) }}</span>
+                <div class="flex flex-col items-end">
+                    <span class="text-3xl ml-4">{{ number_format($data['new_cases_rate'], 2) }}</span>
+                    <svg class="mt-1 sparkline" width="85" height="30" stroke-width="3" stroke="#4299E1" fill="#63B3ED"></svg>
+                </div>
             </div>
 
             <div class="border-t border-b border-gray-800 py-6 my-3">
@@ -34,8 +44,16 @@
             </div>
         </div>
 
-        <div class="mt-12 max-w-md w-full mx-auto">
+        <div class="mt-12 md:max-w-md w-full mx-auto">
             <livewire:new-cases-rate-by-country :romania="$data" />
         </div>
     </div>
 @endsection
+@push('scripts')
+    <script src="https://unpkg.com/@fnando/sparkline@0.3.10/dist/sparkline.js"></script>
+    <script>
+        window.onload = () => {
+            sparkline.sparkline(document.querySelector('.sparkline'), {{ $data['trend']->pluck('new_cases_rate') }});
+        }
+    </script>
+@endpush
