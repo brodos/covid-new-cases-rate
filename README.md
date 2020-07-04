@@ -6,6 +6,33 @@ Example: https://covid-rate.stagr.dev/?country=GR
 
 
 
+### API endpoints
+
+This app also exposes 2 api endpoints to fetch the countries and new cases rate per country.
+
+
+
+##### Countries
+
+```
+GET /api/countries
+```
+This endpoint returns all the available countries.
+
+
+
+##### New cases rate by country
+
+```
+GET /api/new-cases-rate/{ISO2}
+```
+
+This endpoint returns the details for the specified country.
+
+
+
+
+
 ### COVID-19 data source
 
 ```
