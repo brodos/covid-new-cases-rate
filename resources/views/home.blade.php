@@ -48,7 +48,7 @@
             let countryInput = () => {
                 return {
                     loading: false,
-                    search: null,
+                    search: @json($selectedCountry),
                     selectCountry(event) {
                         this.loading = true
                         window.location.href = '/?country='+this.search
