@@ -106,13 +106,16 @@
             @endif
         </div>
     @endif
-    <div class="mt-12 container mx-auto flex flex-col lg:flex-row items-start justify-center px-6 lg:px-0">
-        <div class="max-w-md w-full mx-auto">
-            @include('_partials.country-data', ['data' => $roData])
-        </div>
-
-        <div class="mt-8 lg:mt-0 max-w-md w-full mx-auto">
-            @includeWhen(! empty($countryData), '_partials.country-data', ['data' => $countryData])
+    <div class="mt-12 container mx-auto px-6 lg:px-0">
+        <div class="flex flex-col lg:flex-row items-start justify-center -mx-4">
+            @if (! empty($countryData))
+                <div class="max-w-md w-full mx-auto px-4">
+                    @include('_partials.country-data', ['data' => $countryData])
+                </div>
+            @endif
+            <div class="max-w-md w-full mx-auto px-4 mt-8 lg:mt-0">
+                @include('_partials.country-data', ['data' => $roData])
+            </div>
         </div>
     </div>
 @endsection
