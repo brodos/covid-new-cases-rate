@@ -11,9 +11,13 @@ class NewCasesRateByCountry extends Component
 
     public $countries;
 
+    protected $updatesQueryString = [
+        'country' => ['except' => ''],
+    ];
+
     public function mount()
     {
-
+        $this->fill(request()->only('country'));
     }
 
     public function fetchCountryData()
@@ -50,6 +54,10 @@ class NewCasesRateByCountry extends Component
 
         $days = collect($covidStats)->reverse()->take(15)->values();
         $prevDay = $days->pop();
+
+        if ($days->isEmpty()) {
+            return;
+        }
 
         $data['country'] = $days->first()['Country'];
         $data['population'] = $countryStats['population'] ?? 0;

@@ -10,12 +10,12 @@
 
             <div class="border-t border-b border-gray-800 py-6 my-3">
                 <ul class="leading-normal text-gray-300">
-                    <li class="mt-2 first:mt-0">Population: {{ number_format($data['population'], 0) }}</li>
-                    <li class="mt-2 first:mt-0">Last reported day: {{ $data['last_reported_day'] }}</li>
+                    <li class="mt-2 first:mt-0">Populație: {{ number_format($data['population'], 0) }}</li>
+                    <li class="mt-2 first:mt-0">Ultima zi raportată: {{ $data['last_reported_day'] }}</li>
 
-                    <li class="mt-2">14 days new cases: {{ number_format($data['last_14_days']['confirmed'], 0) }}</li>
-                    <li class="mt-2">14 days deaths: {{ number_format($data['last_14_days']['deaths'], 0) }}</li>
-                    <li class="mt-2">14 days recovered: {{ number_format($data['last_14_days']['recovered'], 0) }}</li>
+                    <li class="mt-2">Cazuri noi în ultimele 14 zile: {{ number_format($data['last_14_days']['confirmed'], 0) }}</li>
+                    <li class="mt-2">Decese în ultimele 14 zile: {{ number_format($data['last_14_days']['deaths'], 0) }}</li>
+                    <li class="mt-2">Recuperări in ultimele 14 zile: {{ number_format($data['last_14_days']['recovered'], 0) }}</li>
                 </ul>
             </div>
         </div>
