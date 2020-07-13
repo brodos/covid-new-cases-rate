@@ -77,6 +77,10 @@ class CovidService
         return \Cache::remember('covid19:countries', Carbon::parse('12 hours'), function () {
             $response = \Http::get(config('app.covid_api') . '/countries');
 
+            if (! $response->ok()) {
+                return collect([]);
+            }
+
             return collect($response->json())->sortBy('Country')->values();
         });
     }

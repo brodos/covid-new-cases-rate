@@ -86,7 +86,7 @@
         <div class="max-w-md w-full mx-auto px-6 md:px-0">
             @if ($roData['new_cases_rate'] < $countryData['new_cases_rate'])
                 <div class="my-4 bg-red-300 rounded p-4 text-red-800">
-                    You are required to self-isolate for 14 days when coming to Romania from <span class="font-bold">{{ $countryData['country'] }}</span>.
+                    You might be required to self-isolate for 14 days when coming to Romania from <span class="font-bold">{{ $countryData['country'] }}</span>.
                 </div>
             @endif
 
